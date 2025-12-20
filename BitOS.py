@@ -38,6 +38,9 @@ def Boot():
     basic.pause(500)
     Showimage("90009:99099:90909:90009:99999")
     basic.pause(1000)
+    music.ring_tone(Note.F)
+    basic.pause(250)
+    music.stop_all_sounds()
     return
 
 def on_received_string(receivedString):
