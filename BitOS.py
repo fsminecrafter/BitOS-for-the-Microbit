@@ -9,6 +9,8 @@ appindex = 0
 debug = False
 ActiveApp = "None"
 PlayerY = 3
+rockX = 5
+rockY = 2
 
 def char_to_int(c: str):
     i = 0
@@ -88,8 +90,32 @@ def AppEntryPoint():
         basic.clear_screen()
         Showimage("00000:00000:00000:90000:99999")
 
+def ExitApplication():
+    basic.clear_screen()
+    global AppmenuActive
+    global Apps
+    global AppsLogos
+    global appindex
+    global debug
+    global ActiveApp
+
+    AppmenuActive = True
+    appindex = 0
+    debug = False
+    ActiveApp = "None"
+
+def Lose():
+    basic.clear_screen()
+    music._play_default_background(music.built_in_playable_melody(Melodies.FUNERAL), music.PlaybackMode.IN_BACKGROUND)
+    basic.show_string("You Lost!")
+    ActiveApp = "None"
+    ExitApplication()
+    basic.clear_screen()
+
 def GameFrame():
     global PlayerY
+    global rockX
+    global rockY
     rockX = 5
     rockY = randint(2, 3)
     random = randint(0, 10)
@@ -101,26 +127,30 @@ def GameFrame():
             if i == 6:
                 led.unplot(0, rockY)
                 break
-            if not led.point(0, PlayerY):
-                basic.clear_screen()
-                for i in range(2):
-                    basic.show_string("You Lost!")
-                ActiveApp = "None"
+            if rockX == 0 and rockY == PlayerY:
+                rockX = 5
+                Lose()
                 break
             rockX -= 1
             basic.pause(100)
 
 def Jump():
     global PlayerY
+    global rockX
+    global rockY
     PlayerY = 2
     led.unplot(0, PlayerY + 1)
     led.plot(0, PlayerY)
+    if rockX == 0 and rockY == PlayerY:
+        Lose()
+    music.play(music.tone_playable(Note.E, music.beat(BeatFraction.QUARTER)), music.PlaybackMode.IN_BACKGROUND)
     basic.pause(250)
     PlayerY = 3
     led.unplot(0, PlayerY - 1)
     led.plot(0, PlayerY)
 
 def InitApplications():
+    music.set_volume(255)
     while len(Apps) > 0:
         Apps.pop()
     while len(AppsLogos) > 0:
@@ -144,21 +174,6 @@ def Appmenu():
         if ActiveApp == "Game":
             GameFrame()
         basic.pause(100)
-    
-def ExitApplication():
-    basic.clear_screen()
-    global AppmenuActive
-    global Apps
-    global AppsLogos
-    global appindex
-    global debug
-    global ActiveApp
-
-    AppmenuActive = True
-    appindex = 0
-    debug = False
-    ActiveApp = "None"
-
 
 def AB_Button():
     global AppmenuActive
