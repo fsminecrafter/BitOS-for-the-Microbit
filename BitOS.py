@@ -8,6 +8,7 @@ messages = ["Hello!", "(:", "):", "How are you doing?", "Isnt BitOS great!?", "L
 appindex = 0
 debug = False
 ActiveApp = "None"
+PlayerY = 3
 
 def char_to_int(c: str):
     i = 0
@@ -56,6 +57,7 @@ def AppEntryPoint():
     global AppmenuActive
     global ActiveApp
     global messages
+    global PlayerY
     AppmenuActive = False
     app = Apps[appindex]
     ActiveApp = app
@@ -75,6 +77,48 @@ def AppEntryPoint():
         radio.on_received_string(on_received_string)
     elif app == "Dice":
         basic.clear_screen()
+    elif app == "Pattern":
+        basic.clear_screen()
+        while AppmenuActive == False:
+            Showimage("90909:05050:90009:05050:90909")
+            basic.pause(250)
+            Showimage("09090:50505:05250:50505:09090")
+            basic.pause(250)
+    elif app == "Game":
+        basic.clear_screen()
+        Showimage("00000:00000:00000:90000:99999")
+
+def GameFrame():
+    global PlayerY
+    rockX = 5
+    rockY = randint(2, 3)
+    random = randint(0, 10)
+    if random == 7:
+        for i in range(7):
+            if not i == 1:
+                led.unplot(rockX + 1, rockY)
+            led.plot(rockX, rockY)
+            if i == 6:
+                led.unplot(0, rockY)
+                break
+            if not led.point(0, PlayerY):
+                basic.clear_screen()
+                for i in range(2):
+                    basic.show_string("You Lost!")
+                ActiveApp = "None"
+                break
+            rockX -= 1
+            basic.pause(100)
+
+def Jump():
+    global PlayerY
+    PlayerY = 2
+    led.unplot(0, PlayerY + 1)
+    led.plot(0, PlayerY)
+    basic.pause(250)
+    PlayerY = 3
+    led.unplot(0, PlayerY - 1)
+    led.plot(0, PlayerY)
 
 def InitApplications():
     while len(Apps) > 0:
@@ -92,12 +136,17 @@ def Appmenu():
     RegisterApplication("Flashlight", "90909:09090:90909:09090:90909")
     RegisterApplication("RadioChat", "99900:90090:90090:09990:00009")
     RegisterApplication("Dice", "00000:09090:09090:09090:00000")
+    RegisterApplication("Pattern", "00000:09090:00900:09090:00000")
+    RegisterApplication("Game", "00000:00000:00900:00000:99999")
     while True:
         if AppmenuActive:
             Showimage(AppsLogos[appindex])
+        if ActiveApp == "Game":
+            GameFrame()
         basic.pause(100)
     
 def ExitApplication():
+    basic.clear_screen()
     global AppmenuActive
     global Apps
     global AppsLogos
@@ -152,6 +201,8 @@ def A_Button():
         Left()
     elif ActiveApp == "Dice":
         RollDice()
+    elif ActiveApp == "Game":
+        Jump()
 
 def B_Button():
     if AppmenuActive == True:
