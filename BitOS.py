@@ -111,7 +111,7 @@ def Csell():
     if BitsCoins > 0.0001:
         Money += BitsCoins * BitsValue
         BitsCoins = 0.0000
-        music._play_default_background(music.built_in_playable_melody(Melodies.NYAN), music.PlaybackMode.IN_BACKGROUND)
+        music.play(music.tone_playable(Note.E, music.beat(BeatFraction.QUARTER)), music.PlaybackMode.IN_BACKGROUND)
 
 def RatioScore(a, b, c):
     if a <= 0 or b <= 0 or c <= 0:
@@ -165,8 +165,8 @@ def CGameFrame():
     # Clamp market speed (VERY IMPORTANT)
     if MarketGoingUpBy > 5:
         MarketGoingUpBy = 5
-    elif MarketGoingUpBy < -10:
-        MarketGoingUpBy = -10
+    elif MarketGoingUpBy < -5:
+        MarketGoingUpBy = -5
 
     TimeSinceLastChange += 1
 
@@ -194,11 +194,16 @@ def CGameFrame():
     # Prevent negative market value
     if BitsValue < 0:
         BitsValue = 0
-    if BitsValue > 300:
+    if BitsValue >= 300:
         BitsValue = 300
         MarketGoingUp = False
         TimeSinceLastChange = 0
         BitsValue -= 50
+    if BitsValue <= 80:
+        BitsValue = 80
+        MarketGoingUp = True
+        TimeSinceLastChange = 0
+        BitsValue += 50
 
 # This function updates the Home UI.
 def CHomeUpdate():
@@ -263,7 +268,8 @@ def PurchaseItem(cost, item):
     if Money >= cost:
         Money -= cost
         OwnedComputerModules.append(item)
-        music._play_default_background(music.built_in_playable_melody(Melodies.PUNCHLINE), music.PlaybackMode.IN_BACKGROUND)
+        music.play(music.tone_playable(Note.F, music.beat(BeatFraction.QUARTER)), music.PlaybackMode.IN_BACKGROUND)
+        
     else:
         basic.clear_screen()
         basic.show_icon(IconNames.NO)
@@ -286,7 +292,7 @@ def LogoTouch():
                 PurchaseItem(StorageModuleCost, "StorageModule")
         else:
             basic.clear_screen()
-            basic.show_string('$' + str(Money) + "{B}" + cut(BitsCoins, 3))
+            basic.show_string('$' + cut(Money, 3) + "{B}" + cut(BitsCoins, 3))
             CHomeUpdate()
 
 def GestureShake():
@@ -330,7 +336,7 @@ def ExitApplication():
 def Lose():
     basic.clear_screen()
     music._play_default_background(music.built_in_playable_melody(Melodies.FUNERAL), music.PlaybackMode.IN_BACKGROUND)
-    basic.show_string("You Lost!")
+    basic.show_string("U Lose!")
     ActiveApp = "None"
     ExitApplication()
     basic.clear_screen()
@@ -407,6 +413,16 @@ def Appmenu():
             CGameFrame()
         basic.pause(100)
 
+def CAnimation():
+    basic.clear_screen()
+    music._play_default_background(music.built_in_playable_melody(Melodies.NYAN), music.PlaybackMode.IN_BACKGROUND)
+    for i in range(20):
+        Showimage("99900:90090:99900:90090:99900")
+        basic.pause(250)
+        Showimage("00999:09009:00999:09009:00999")
+        basic.pause(250)
+    CHomeUpdate()
+
 def AB_Button():
     global AppmenuActive
     global ActiveApp
@@ -416,6 +432,8 @@ def AB_Button():
     elif ActiveApp == "ComputerInc":
         if InShop:
             CHomeUpdate()
+        else:
+            CAnimation()
     else:
         ExitApplication()
 
