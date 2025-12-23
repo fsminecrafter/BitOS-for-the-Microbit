@@ -111,6 +111,7 @@ def Csell():
     if BitsCoins > 0.0001:
         Money += BitsCoins * BitsValue
         BitsCoins = 0.0000
+        music._play_default_background(music.built_in_playable_melody(Melodies.NYAN), music.PlaybackMode.IN_BACKGROUND)
 
 def RatioScore(a, b, c):
     if a <= 0 or b <= 0 or c <= 0:
@@ -162,8 +163,8 @@ def CGameFrame():
         MarketGoingUpBy -= drift
 
     # Clamp market speed (VERY IMPORTANT)
-    if MarketGoingUpBy > 10:
-        MarketGoingUpBy = 10
+    if MarketGoingUpBy > 5:
+        MarketGoingUpBy = 5
     elif MarketGoingUpBy < -10:
         MarketGoingUpBy = -10
 
@@ -193,7 +194,11 @@ def CGameFrame():
     # Prevent negative market value
     if BitsValue < 0:
         BitsValue = 0
-
+    if BitsValue > 300:
+        BitsValue = 300
+        MarketGoingUp = False
+        TimeSinceLastChange = 0
+        BitsValue -= 50
 
 # This function updates the Home UI.
 def CHomeUpdate():
@@ -258,6 +263,7 @@ def PurchaseItem(cost, item):
     if Money >= cost:
         Money -= cost
         OwnedComputerModules.append(item)
+        music._play_default_background(music.built_in_playable_melody(Melodies.PUNCHLINE), music.PlaybackMode.IN_BACKGROUND)
     else:
         basic.clear_screen()
         basic.show_icon(IconNames.NO)
@@ -303,7 +309,9 @@ def GestureShake():
                 basic.show_string(str(StorageModuleCost))
                 CShopUpdate()
         else:
+            basic.clear_screen()
             basic.show_string("Value: " + str(BitsValue))
+            CHomeUpdate()
 
 def ExitApplication():
     basic.clear_screen()
